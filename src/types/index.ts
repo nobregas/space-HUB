@@ -17,8 +17,11 @@ export interface Reservation {
   date: string;
   startTime: string;
   endTime: string;
-  status: "confirmed" | "pending" | "cancelled";
+  status: ReservationStatus;
 }
+
+export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled';
+
 
 export interface User {
   id: string;
@@ -43,9 +46,12 @@ export interface Event {
   organizer: string;
   attendees: number;
   maxAttendees: number;
-  type: "workshop" | "networking" | "presentation" | "social";
+  type: EventType;
   image: string;
 }
+
+export type EventType = 'workshop' | 'networking' | 'presentation' | 'social';
+
 
 export interface OccupancyData {
   totalCapacity: number;
@@ -53,4 +59,15 @@ export interface OccupancyData {
   availableRooms: number;
   totalRooms: number;
   hourlyOccupancy: { hour: string; count: number }[];
+}
+
+export type CheckinStatus = "waiting" | "checked-in" | "checked-out";
+
+export interface CheckinEntry {
+  id: string;
+  user: User;
+  space: string;
+  startTime: string;
+  endTime: string;
+  status: CheckinStatus;
 }
