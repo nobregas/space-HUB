@@ -5,11 +5,12 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import type { CheckinEntry, CheckinStatus } from "@/types";
+import type { CheckinEntry, CheckinStatus, Room } from "@/types";
 import { mockReservations, mockUsers, mockRooms } from "@/data/mockdata";
 import CheckinFilters from "./CheckinFilters";
 import CheckinList from "./CheckinList";
 import ManualCheckinModal from "./ManualCheckinModal";
+import SpaceCard from "./SpaceCard";
 
 // Gerando dados de check-in a partir dos mocks existentes
 const generateCheckinData = (): CheckinEntry[] => {
@@ -77,8 +78,7 @@ const CheckinDashboard: React.FC = () => {
   const [filter, setFilter] = useState<"all" | CheckinStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
+  const [selectedSpace, setSelectedSpace] = useState<string>("all");
 
   const handleCheckIn = (id: string) => {
     setCheckinEntries((prev) =>
@@ -92,42 +92,80 @@ const CheckinDashboard: React.FC = () => {
     );
   };
 
-  const handleManualCheckin = (userId: string, spaceId: string) => {
+  const handleManualCheckin = (
+    userId: string,
+    spaceId: string,
+    quantity: number
+  ) => {
     const user = mockUsers.find((u) => u.id === userId);
     const space =
       spaceId === "daily-pass"
-        ? { id: "daily-pass", name: "Passe Diário" }
+        ? { id: "daily-pass", name: "Passe Diário", capacity: Infinity }
         : mockRooms.find((r) => r.id === spaceId);
 
     if (user && space) {
-      // Verifica se o espaço já está ocupado
-      const isSpaceOccupied = checkinEntries.some(
+      const checkedInCount = checkinEntries.filter(
         (entry) => entry.space === space.name && entry.status === "checked-in"
-      );
+      ).length;
 
-      if (isSpaceOccupied) {
-        alert(`O espaço "${space.name}" já está ocupado.`);
+      if (checkedInCount + quantity > space.capacity) {
+        alert(
+          `O espaço "${space.name}" não tem capacidade para ${quantity} pessoa(s).`
+        );
         return;
       }
 
       const today = new Date().toISOString().split("T")[0];
-      const newCheckinEntry: CheckinEntry = {
-        id: `manual-checkin-${Date.now()}`,
-        user,
-        space: space.name,
-        startTime: `${today}T${new Date().toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}:00`,
-        endTime: `${today}T18:00:00`, // Default end time for manual check-in
-        status: "checked-in",
-      };
-      setCheckinEntries((prev) => [newCheckinEntry, ...prev]);
+      const newCheckinEntries: CheckinEntry[] = [];
+
+      for (let i = 0; i < quantity; i++) {
+        const newUser = {
+          ...user,
+          id: `${user.id}-${i}`,
+          name: quantity > 1 ? `${user.name} (${i + 1})` : user.name,
+        };
+
+        newCheckinEntries.push({
+          id: `manual-checkin-${Date.now()}-${i}`,
+          user: newUser,
+          space: space.name,
+          startTime: `${today}T${new Date().toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}:00`,
+          endTime: `${today}T18:00:00`, // Default end time
+          status: "checked-in",
+        });
+      }
+
+      setCheckinEntries((prev) => [...newCheckinEntries, ...prev]);
     }
   };
 
+  const spaces: (Room & { occupancy: number })[] = useMemo(() => {
+    const occupancyMap = checkinEntries
+      .filter((entry) => entry.status === "checked-in")
+      .reduce((acc, entry) => {
+        acc[entry.space] = (acc[entry.space] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    return mockRooms.map((room) => ({
+      ...room,
+      occupancy: occupancyMap[room.name] || 0,
+    }));
+  }, [checkinEntries]);
+
+  const totalOccupancy = useMemo(() => {
+    return spaces.reduce((acc, space) => acc + space.occupancy, 0);
+  }, [spaces]);
+
   const filteredEntries = useMemo(() => {
     return checkinEntries
+      .filter((entry) => {
+        if (selectedSpace === "all") return true;
+        return entry.space === selectedSpace;
+      })
       .filter((entry) => {
         if (filter === "all") return true;
         return entry.status === filter;
@@ -139,11 +177,10 @@ const CheckinDashboard: React.FC = () => {
           entry.user.role.toLowerCase().includes(term)
         );
       });
-  }, [checkinEntries, filter, searchTerm]);
+  }, [checkinEntries, filter, searchTerm, selectedSpace]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-full">
-      {/* Cabeçalho */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
@@ -153,30 +190,59 @@ const CheckinDashboard: React.FC = () => {
             Visualize e gerencie as entradas e saídas do dia.
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <UserPlus size={18} />
-          <span>Check-in Manual</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-lg font-bold text-gray-800">Ocupação Total</p>
+            <p className="text-3xl font-bold text-blue-600">{totalOccupancy}</p>
+          </div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <UserPlus size={18} />
+            <span>Check-in Manual</span>
+          </button>
+        </div>
       </div>
 
-      {/* Filtros e Busca */}
-      <CheckinFilters
-        activeFilter={filter}
-        onFilterChange={setFilter}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+            <SpaceCard
+              spaceName="Todos os Espaços"
+              capacity={mockRooms.reduce((acc, room) => acc + room.capacity, 0)}
+              occupancy={totalOccupancy}
+              isSelected={selectedSpace === "all"}
+              onClick={() => setSelectedSpace("all")}
+            />
+            {spaces.map((space) => (
+              <SpaceCard
+                key={space.id}
+                spaceName={space.name}
+                capacity={space.capacity}
+                occupancy={space.occupancy}
+                isSelected={selectedSpace === space.name}
+                onClick={() => setSelectedSpace(space.name)}
+              />
+            ))}
+          </div>
+        </div>
 
-      {/* Lista de Reservas */}
-      <CheckinList
-        entries={filteredEntries}
-        statusConfig={statusConfig}
-        onCheckIn={handleCheckIn}
-        onCheckOut={handleCheckOut}
-      />
+        <div className="lg:col-span-2">
+          <CheckinFilters
+            activeFilter={filter}
+            onFilterChange={setFilter}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+          <CheckinList
+            entries={filteredEntries}
+            statusConfig={statusConfig}
+            onCheckIn={handleCheckIn}
+            onCheckOut={handleCheckOut}
+          />
+        </div>
+      </div>
 
       <ManualCheckinModal
         isOpen={isModalOpen}

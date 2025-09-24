@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import UsageChart from '../components/Reports/UsageChart';
 import StatsCard from '../components/Dashboard/StatsCard';
-import { BarChart3, Users, Calendar, Clock, Download, Filter } from 'lucide-react';
+import { BarChart3, Users, Calendar, Clock, Download } from 'lucide-react';
 
 const Reports: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
-  const [selectedMetric, setSelectedMetric] = useState('all');
 
   const weeklyData = [
     { period: 'Segunda', checkins: 45, reservations: 12, events: 2 },

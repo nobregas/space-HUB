@@ -7,7 +7,7 @@ import ConfirmationModal from '../common/ConfirmationModal';
 interface ManualCheckinModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCheckin: (userId: string, spaceId: string) => void;
+  onCheckin: (userId: string, spaceId: string, quantity: number) => void;
   users: User[];
   rooms: Room[];
   checkinEntries: CheckinEntry[];
@@ -23,20 +23,31 @@ const ManualCheckinModal: React.FC<ManualCheckinModalProps> = ({
 }) => {
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [selectedSpace, setSelectedSpace] = useState<string>('');
+  const [isCompanyCheckin, setIsCompanyCheckin] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [isCancelModalOpen, setCancelModalOpen] = useState(false);
 
   const occupiedSpaces = useMemo(() => {
-    return new Set(
-      checkinEntries
-        .filter((entry) => entry.status === 'checked-in')
-        .map((entry) => entry.space)
-    );
-  }, [checkinEntries]);
+    const spaceCounts = checkinEntries
+      .filter((entry) => entry.status === 'checked-in')
+      .reduce((acc, entry) => {
+        acc[entry.space] = (acc[entry.space] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const fullyOccupiedSpaces = new Set<string>();
+    for (const room of rooms) {
+      if (spaceCounts[room.name] >= room.capacity) {
+        fullyOccupiedSpaces.add(room.name);
+      }
+    }
+    return fullyOccupiedSpaces;
+  }, [checkinEntries, rooms]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedUser && selectedSpace) {
-      onCheckin(selectedUser, selectedSpace);
+      onCheckin(selectedUser, selectedSpace, isCompanyCheckin ? quantity : 1);
       onClose();
     }
   };
@@ -81,6 +92,32 @@ const ManualCheckinModal: React.FC<ManualCheckinModalProps> = ({
                 ))}
               </select>
             </div>
+            <div className="mb-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isCompanyCheckin}
+                  onChange={(e) => setIsCompanyCheckin(e.target.checked)}
+                  className="mr-2"
+                />
+                Check-in de empresa
+              </label>
+            </div>
+            {isCompanyCheckin && (
+              <div className="mb-4">
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                  Quantidade
+                </label>
+                <input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
             <div className="mb-6">
               <label htmlFor="space" className="block text-sm font-medium text-gray-700 mb-2">
                 Espaço ou Passe
