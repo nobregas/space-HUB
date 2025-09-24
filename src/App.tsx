@@ -6,14 +6,18 @@ import CheckIn from "./pages/Checkin";
 import Events from "./pages/Events";
 import Reports from "./pages/Reports";
 import Reservations from "./pages/Reservations";
-import type { Reservation, User } from "@/types";
+import type { Reservation } from "@/types";
 import { mockReservations } from "@/data/mockdata";
 import Alert from "@/components/common/Alert";
 
 function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
-  const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | "warning" | "info" } | null>(null);
+  const [reservations, setReservations] =
+    useState<Reservation[]>(mockReservations);
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  } | null>(null);
 
   useEffect(() => {
     if (alert) {
@@ -24,25 +28,35 @@ function App() {
     }
   }, [alert]);
 
-  const handleReservation = (reservation: Omit<Reservation, 'id' | 'status' | 'roomName' | 'userId' | 'userName'>, roomName: string) => {
+  const handleReservation = (
+    reservation: Omit<
+      Reservation,
+      "id" | "status" | "roomName" | "userId" | "userName"
+    >,
+    roomName: string
+  ) => {
     const newReservation: Reservation = {
       id: `res-${Date.now()}`,
       roomId: reservation.roomId,
       roomName: roomName,
-      userId: 'user-1', // Mock user ID
-      userName: 'Admin', // Mock user name
+      userId: "user-1", // Mock user ID
+      userName: "Admin", // Mock user name
       date: reservation.date,
       startTime: reservation.startTime,
       endTime: reservation.endTime,
-      status: 'confirmed',
+      status: "confirmed",
       purpose: reservation.purpose,
       attendees: reservation.attendees,
     };
 
-    setReservations(prev => [...prev, newReservation]);
+    setReservations((prev) => [...prev, newReservation]);
     setAlert({ message: "Reserva confirmada com sucesso!", type: "success" });
   };
 
+  const handleCancelReservation = (reservationId: string) => {
+    setReservations((prev) => prev.filter((res) => res.id !== reservationId));
+    setAlert({ message: "Reserva cancelada com sucesso!", type: "info" });
+  };
 
   const renderPage = () => {
     switch (activeTab) {
@@ -51,7 +65,13 @@ function App() {
       case "checkin":
         return <CheckIn reservations={reservations} />;
       case "reservations":
-        return <Reservations reservations={reservations} onConfirmReservation={handleReservation} />;
+        return (
+          <Reservations
+            reservations={reservations}
+            onConfirmReservation={handleReservation}
+            onCancelReservation={handleCancelReservation}
+          />
+        );
       case "events":
         return <Events />;
       case "reports":

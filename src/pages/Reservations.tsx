@@ -3,18 +3,26 @@ import RoomCard from '../components/Reservations/RoomCard';
 import ReservationModal from '../components/Reservations/ReservationModal';
 import AllReservations from '../components/Reservations/AllReservations';
 import CalendarView from '../components/Reservations/CalendarView';
-import { Filter, Search, Calendar, ArrowLeft } from 'lucide-react';
+import { Filter, Search, ArrowLeft } from 'lucide-react';
 import type { Room, Reservation, User } from '@/types';
-import { mockRooms, mockUsers, mockReservations } from '@/data/mockdata';
+import { mockRooms, mockUsers } from '@/data/mockdata';
 
-const Reservations: React.FC = () => {
+interface ReservationsProps {
+  reservations: Reservation[];
+  onConfirmReservation: (
+    reservation: Omit<Reservation, "id" | "status" | "roomName" | "userId" | "userName">,
+    roomName: string
+  ) => void;
+  onCancelReservation: (reservationId: string) => void;
+}
+
+const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmReservation, onCancelReservation }) => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [capacityFilter, setCapacityFilter] = useState('all');
   const [equipmentFilter, setEquipmentFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [allReservations, setAllReservations] = useState<Reservation[]>(mockReservations);
   const [showCalendar, setShowCalendar] = useState(true);
 
   const handleDateChange = (date: Date) => {
@@ -37,7 +45,7 @@ const Reservations: React.FC = () => {
     return matchesSearch && matchesCapacity && matchesEquipment;
   });
 
-  const handleConfirmReservation = (reservationData: {
+  const handleLocalConfirmReservation = (reservationData: {
     roomId: string;
     date: string;
     startTime: string;
@@ -46,21 +54,7 @@ const Reservations: React.FC = () => {
     attendees: User[];
   }) => {
     if (!selectedRoom) return;
-
-    const newReservation: Reservation = {
-      ...reservationData,
-      id: String(allReservations.length + 1),
-      roomName: selectedRoom.name,
-      userId: '1', // Mock user ID
-      userName: 'Ana Silva', // Mock user
-      status: 'confirmed',
-    };
-
-    setAllReservations(prev => [...prev, newReservation]);
-  };
-
-  const handleCancelReservation = (reservationId: string) => {
-    setAllReservations(prev => prev.filter(res => res.id !== reservationId));
+    onConfirmReservation(reservationData, selectedRoom.name);
   };
 
   return (
@@ -195,15 +189,15 @@ const Reservations: React.FC = () => {
       <ReservationModal
         room={selectedRoom}
         onClose={() => setSelectedRoom(null)}
-        onConfirm={handleConfirmReservation}
+        onConfirm={handleLocalConfirmReservation}
         users={mockUsers}
-        reservations={allReservations}
+        reservations={reservations}
         selectedDate={selectedDate.toISOString().split('T')[0]}
       />
 
       <AllReservations 
-        reservations={allReservations}
-        onCancel={handleCancelReservation}
+        reservations={reservations}
+        onCancelReservation={onCancelReservation}
       />
     </div>
   );

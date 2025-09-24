@@ -5,10 +5,10 @@ import { Calendar, Clock, Trash2, User2 } from 'lucide-react';
 
 interface AllReservationsProps {
   reservations: Reservation[];
-  onCancel: (reservationId: string) => void;
+  onCancelReservation: (reservationId: string) => void;
 }
 
-const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCancel }) => {
+const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCancelReservation }) => {
   // No longer filtering for upcoming reservations, show all
   const allReservations = reservations;
 
@@ -31,7 +31,7 @@ const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCance
                 </div>
               </div>
               <button
-                onClick={() => onCancel(reservation.id)}
+                onClick={() => onCancelReservation(reservation.id)}
                 className="text-red-500 hover:text-red-700 transition-colors"
                 aria-label="Cancelar reserva"
               >

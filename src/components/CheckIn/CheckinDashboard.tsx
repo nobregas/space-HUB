@@ -5,7 +5,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import type { CheckinEntry, CheckinStatus, Room, Reservation, User } from "@/types";
+import type { CheckinEntry, CheckinStatus, Room, Reservation } from "@/types";
 import { mockUsers, mockRooms } from "@/data/mockdata";
 import CheckinFilters from "./CheckinFilters";
 import CheckinList from "./CheckinList";
