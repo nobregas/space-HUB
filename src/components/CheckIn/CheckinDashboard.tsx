@@ -1,17 +1,15 @@
 import React, { useMemo, useState } from "react";
 import {
-  Search,
   UserPlus,
-  LogIn,
-  LogOut,
   CheckCircle,
   Clock,
   XCircle,
 } from "lucide-react";
 import type { CheckinEntry, CheckinStatus } from "@/types";
-import { mockReservations, mockUsers } from "@/data/mockdata";
+import { mockReservations, mockUsers, mockRooms } from "@/data/mockdata";
 import CheckinFilters from "./CheckinFilters";
 import CheckinList from "./CheckinList";
+import ManualCheckinModal from "./ManualCheckinModal";
 
 // Gerando dados de check-in a partir dos mocks existentes
 const generateCheckinData = (): CheckinEntry[] => {
@@ -35,7 +33,7 @@ const generateCheckinData = (): CheckinEntry[] => {
 
   // Adicionar outros usuários que podem ter passes diários (sem reserva de sala)
   const usersWithReservations = new Set(mockReservations.map((r) => r.userId));
-  mockUsers.forEach((user, index) => {
+  mockUsers.forEach((user) => {
     if (!usersWithReservations.has(user.id)) {
       checkinEntries.push({
         id: `checkin-user-${user.id}`,
@@ -78,6 +76,9 @@ const CheckinDashboard: React.FC = () => {
     useState<CheckinEntry[]>(mockCheckinEntries);
   const [filter, setFilter] = useState<"all" | CheckinStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const handleCheckIn = (id: string) => {
     setCheckinEntries((prev) =>
@@ -89,6 +90,40 @@ const CheckinDashboard: React.FC = () => {
     setCheckinEntries((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: "checked-out" } : r))
     );
+  };
+
+  const handleManualCheckin = (userId: string, spaceId: string) => {
+    const user = mockUsers.find((u) => u.id === userId);
+    const space =
+      spaceId === "daily-pass"
+        ? { id: "daily-pass", name: "Passe Diário" }
+        : mockRooms.find((r) => r.id === spaceId);
+
+    if (user && space) {
+      // Verifica se o espaço já está ocupado
+      const isSpaceOccupied = checkinEntries.some(
+        (entry) => entry.space === space.name && entry.status === "checked-in"
+      );
+
+      if (isSpaceOccupied) {
+        alert(`O espaço "${space.name}" já está ocupado.`);
+        return;
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+      const newCheckinEntry: CheckinEntry = {
+        id: `manual-checkin-${Date.now()}`,
+        user,
+        space: space.name,
+        startTime: `${today}T${new Date().toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}:00`,
+        endTime: `${today}T18:00:00`, // Default end time for manual check-in
+        status: "checked-in",
+      };
+      setCheckinEntries((prev) => [newCheckinEntry, ...prev]);
+    }
   };
 
   const filteredEntries = useMemo(() => {
@@ -118,7 +153,10 @@ const CheckinDashboard: React.FC = () => {
             Visualize e gerencie as entradas e saídas do dia.
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <UserPlus size={18} />
           <span>Check-in Manual</span>
         </button>
@@ -138,6 +176,15 @@ const CheckinDashboard: React.FC = () => {
         statusConfig={statusConfig}
         onCheckIn={handleCheckIn}
         onCheckOut={handleCheckOut}
+      />
+
+      <ManualCheckinModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCheckin={handleManualCheckin}
+        users={mockUsers}
+        rooms={mockRooms}
+        checkinEntries={checkinEntries}
       />
     </div>
   );
