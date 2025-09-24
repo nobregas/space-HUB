@@ -6,13 +6,13 @@ import CheckIn from "./pages/Checkin";
 import Events from "./pages/Events";
 import Reports from "./pages/Reports";
 import Reservations from "./pages/Reservations";
-import Users from "./pages/Users"; // Import the Users component
+import Users from "./pages/Users";
 import type { Reservation } from "@/types";
 import { mockReservations } from "@/data/mockdata";
 import Alert from "@/components/common/Alert";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [reservations, setReservations] =
     useState<Reservation[]>(mockReservations);
   const [alert, setAlert] = useState<{
@@ -59,34 +59,9 @@ function App() {
     setAlert({ message: "Reserva cancelada com sucesso!", type: "info" });
   };
 
-  const renderPage = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <Dashboard />;
-      case "checkin":
-        return <CheckIn reservations={reservations} />;
-      case "reservations":
-        return (
-          <Reservations
-            reservations={reservations}
-            onConfirmReservation={handleReservation}
-            onCancelReservation={handleCancelReservation}
-          />
-        );
-      case "users": // New case for Users page
-        return <Users />;
-      case "events":
-        return <Events />;
-      case "reports":
-        return <Reports />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar />
       <main className="flex-1 overflow-y-auto">
         {alert && (
           <div className="fixed top-5 right-5 z-50">
@@ -97,7 +72,27 @@ function App() {
             />
           </div>
         )}
-        {renderPage()}
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/checkin"
+            element={<CheckIn reservations={reservations} />}
+          />
+          <Route
+            path="/reservations"
+            element={
+              <Reservations
+                reservations={reservations}
+                onConfirmReservation={handleReservation}
+                onCancelReservation={handleCancelReservation}
+              />
+            }
+          />
+          <Route path="/users" element={<Users />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/reports" element={<Reports />} />
+        </Routes>
       </main>
     </div>
   );
