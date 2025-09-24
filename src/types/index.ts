@@ -18,6 +18,8 @@ export interface Reservation {
   startTime: string;
   endTime: string;
   status: ReservationStatus;
+  purpose: string;
+  attendees: User[];
 }
 
 export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled';
@@ -70,4 +72,5 @@ export interface CheckinEntry {
   startTime: string;
   endTime: string;
   status: CheckinStatus;
+  attendees?: User[];
 }

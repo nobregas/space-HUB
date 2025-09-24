@@ -1,86 +1,96 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   UserPlus,
   CheckCircle,
   Clock,
   XCircle,
 } from "lucide-react";
-import type { CheckinEntry, CheckinStatus, Room } from "@/types";
-import { mockReservations, mockUsers, mockRooms } from "@/data/mockdata";
+import type { CheckinEntry, CheckinStatus, Room, Reservation, User } from "@/types";
+import { mockUsers, mockRooms } from "@/data/mockdata";
 import CheckinFilters from "./CheckinFilters";
 import CheckinList from "./CheckinList";
 import ManualCheckinModal from "./ManualCheckinModal";
 import SpaceCard from "./SpaceCard";
 
-// Gerando dados de check-in a partir dos mocks existentes
-const generateCheckinData = (): CheckinEntry[] => {
-  const today = new Date().toISOString().split("T")[0]; // Usar a data de hoje para relevância
-  const checkinEntries: CheckinEntry[] = [];
+interface CheckinDashboardProps {
+  reservations: Reservation[];
+}
 
-  // Adicionar usuários com reservas de sala
-  mockReservations.forEach((reservation, index) => {
-    const user = mockUsers.find((u) => u.id === reservation.userId);
-    if (user) {
-      checkinEntries.push({
-        id: `checkin-${reservation.id}`,
-        user: user,
-        space: reservation.roomName,
-        startTime: `${today}T${reservation.startTime}:00`,
-        endTime: `${today}T${reservation.endTime}:00`,
-        status: index % 2 === 0 ? "waiting" : "checked-in", // Alternar status para exemplo
-      });
-    }
-  });
+const CheckinDashboard: React.FC<CheckinDashboardProps> = ({ reservations }) => {
+  const generateCheckinData = (reservations: Reservation[]): CheckinEntry[] => {
+    const today = new Date().toISOString().split("T")[0];
+    const checkinEntries: CheckinEntry[] = [];
 
-  // Adicionar outros usuários que podem ter passes diários (sem reserva de sala)
-  const usersWithReservations = new Set(mockReservations.map((r) => r.userId));
-  mockUsers.forEach((user) => {
-    if (!usersWithReservations.has(user.id)) {
-      checkinEntries.push({
-        id: `checkin-user-${user.id}`,
-        user: user,
-        space: "Passe Diário",
-        startTime: `${today}T09:00:00`,
-        endTime: `${today}T18:00:00`,
-        status: user.isCheckedIn ? "checked-in" : "checked-out",
-      });
-    }
-  });
+    reservations.forEach((reservation) => {
+      reservation.attendees.forEach(attendee => {
+        checkinEntries.push({
+          id: `checkin-${reservation.id}-${attendee.id}`,
+          user: attendee,
+          space: reservation.roomName,
+          startTime: `${today}T${reservation.startTime}:00`,
+          endTime: `${today}T${reservation.endTime}:00`,
+          status: "waiting",
+          attendees: reservation.attendees,
+        });
+      })
+    });
 
-  return checkinEntries;
-};
-const mockCheckinEntries: CheckinEntry[] = generateCheckinData();
+    const usersWithReservations = new Set(reservations.flatMap((r) => r.attendees.map(a => a.id)));
+    mockUsers.forEach((user) => {
+      if (!usersWithReservations.has(user.id)) {
+        checkinEntries.push({
+          id: `checkin-user-${user.id}`,
+          user: user,
+          space: "Passe Diário",
+          startTime: `${today}T09:00:00`,
+          endTime: `${today}T18:00:00`,
+          status: user.isCheckedIn ? "checked-in" : "checked-out",
+        });
+      }
+    });
 
-const statusConfig: Record<
-  CheckinStatus,
-  { text: string; icon: React.ElementType; color: string }
-> = {
-  waiting: {
-    text: "Aguardando",
-    icon: Clock,
-    color: "text-yellow-600 bg-yellow-100",
-  },
-  "checked-in": {
-    text: "Presente",
-    icon: CheckCircle,
-    color: "text-green-600 bg-green-100",
-  },
-  "checked-out": {
-    text: "Finalizado",
-    icon: XCircle,
-    color: "text-gray-500 bg-gray-100",
-  },
-};
+    return checkinEntries;
+  };
 
-const CheckinDashboard: React.FC = () => {
-  const [checkinEntries, setCheckinEntries] =
-    useState<CheckinEntry[]>(mockCheckinEntries);
+  const [checkinEntries, setCheckinEntries] = useState<CheckinEntry[]>([]);
+
+  useEffect(() => {
+    setCheckinEntries(generateCheckinData(reservations));
+  }, [reservations]);
+
+  const statusConfig: Record<
+    CheckinStatus,
+    { text: string; icon: React.ElementType; color: string }
+  > = {
+    waiting: {
+      text: "Aguardando",
+      icon: Clock,
+      color: "text-yellow-600 bg-yellow-100",
+    },
+    "checked-in": {
+      text: "Presente",
+      icon: CheckCircle,
+      color: "text-green-600 bg-green-100",
+    },
+    "checked-out": {
+      text: "Finalizado",
+      icon: XCircle,
+      color: "text-gray-500 bg-gray-100",
+    },
+  };
+
   const [filter, setFilter] = useState<"all" | CheckinStatus>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSpace, setSelectedSpace] = useState<string>("all");
 
   const handleCheckIn = (id: string) => {
+    const entry = checkinEntries.find((e) => e.id === id);
+    if (entry && entry.attendees && !entry.attendees.some(attendee => attendee.id === entry.user.id)) {
+      alert(`Usuário ${entry.user.name} não autorizado para este espaço.`);
+      return;
+    }
+
     setCheckinEntries((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: "checked-in" } : r))
     );

@@ -4,8 +4,6 @@ import type { Room } from '@/types';
 
 interface RoomCardProps {
   room: Room;
-  selectedDate: string;
-  selectedTime: string;
   onSelect: (room: Room) => void;
 }
 
@@ -26,13 +24,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
           alt={room.name}
           className="w-full h-full object-cover"
         />
-        <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${
-          room.isAvailable
-            ? 'bg-green-100 text-green-700'
-            : 'bg-red-100 text-red-700'
-        }`}>
-          {room.isAvailable ? 'Disponível' : 'Ocupada'}
-        </div>
       </div>
       
       <div className="p-4">
@@ -65,14 +56,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
         
         <button
           onClick={() => onSelect(room)}
-          disabled={!room.isAvailable}
-          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
-            room.isAvailable
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-          }`}
+          className="w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700"
         >
-          {room.isAvailable ? 'Reservar Sala' : 'Sala Ocupada'}
+          Reservar Sala
         </button>
       </div>
     </div>

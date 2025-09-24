@@ -1,12 +1,13 @@
-import CheckinDashboard from '@/components/CheckIn/CheckinDashboard';
 import React from 'react';
+import CheckinDashboard from '../components/CheckIn/CheckinDashboard';
+import type { Reservation } from '@/types';
 
-const CheckinPage: React.FC = () => {
-  return (
-    <main className="w-full h-full bg-gray-50">
-      <CheckinDashboard />
-    </main>
-  );
+interface CheckinPageProps {
+  reservations: Reservation[];
+}
+
+const CheckinPage: React.FC<CheckinPageProps> = ({ reservations }) => {
+  return <CheckinDashboard reservations={reservations} />;
 };
 
 export default CheckinPage;

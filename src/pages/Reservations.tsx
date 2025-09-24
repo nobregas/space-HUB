@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import RoomCard from '../components/Reservations/RoomCard';
 import ReservationModal from '../components/Reservations/ReservationModal';
-import { Filter, Search, Calendar } from 'lucide-react';
-import type { Room } from '@/types';
-import { mockRooms } from '@/data/mockdata';
+import MyReservations from '../components/Reservations/MyReservations';
+import CalendarView from '../components/Reservations/CalendarView';
+import { Filter, Search, Calendar, ArrowLeft } from 'lucide-react';
+import type { Room, Reservation, User } from '@/types';
+import { mockRooms, mockUsers, mockReservations } from '@/data/mockdata';
 
 const Reservations: React.FC = () => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -11,6 +13,14 @@ const Reservations: React.FC = () => {
   const [capacityFilter, setCapacityFilter] = useState('all');
   const [equipmentFilter, setEquipmentFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [myReservations, setMyReservations] = useState<Reservation[]>(mockReservations);
+  const [showCalendar, setShowCalendar] = useState(true);
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    setShowCalendar(false);
+  };
 
   const filteredRooms = mockRooms.filter(room => {
     const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,11 +37,30 @@ const Reservations: React.FC = () => {
     return matchesSearch && matchesCapacity && matchesEquipment;
   });
 
-  const handleReservation = (reservation: any) => {
-    // Aqui você implementaria a lógica para salvar a reserva
-    console.log('Nova reserva:', reservation);
-    // Simular sucesso
-    alert('Reserva confirmada com sucesso!');
+  const handleConfirmReservation = (reservationData: {
+    roomId: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    purpose: string;
+    attendees: User[];
+  }) => {
+    if (!selectedRoom) return;
+
+    const newReservation: Reservation = {
+      ...reservationData,
+      id: String(myReservations.length + 1),
+      roomName: selectedRoom.name,
+      userId: '1', // Mock user ID
+      userName: 'Ana Silva', // Mock user
+      status: 'confirmed',
+    };
+
+    setMyReservations(prev => [...prev, newReservation]);
+  };
+
+  const handleCancelReservation = (reservationId: string) => {
+    setMyReservations(prev => prev.filter(res => res.id !== reservationId));
   };
 
   return (
@@ -40,123 +69,141 @@ const Reservations: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Reservar Sala</h1>
-            <p className="text-gray-600 mt-1">Encontre e reserve o espaço ideal para sua reunião</p>
+            <p className="text-gray-600 mt-1">
+              {showCalendar 
+                ? 'Selecione uma data no calendário para ver as salas disponíveis' 
+                : `Mostrando salas para ${selectedDate.toLocaleDateString('pt-BR')}`}
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-5 h-5 text-gray-400" />
-            <span className="text-sm text-gray-600">
-              {new Date().toLocaleDateString('pt-BR', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </span>
-          </div>
+          {!showCalendar && (
+            <button
+              onClick={() => setShowCalendar(true)}
+              className="flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors duration-200 hover:bg-gray-50 hover::color-gray-900 cursor-pointer"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span >Voltar</span>
+            </button>
+          )}
         </div>
         
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Buscar por nome da sala ou localização..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center space-x-2 px-4 py-3 border rounded-lg transition-colors duration-200 ${
-              showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            <Filter className="w-5 h-5" />
-            <span>Filtros</span>
-          </button>
-        </div>
-        
-        {showFilters && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Capacidade
-                </label>
-                <select
-                  value={capacityFilter}
-                  onChange={(e) => setCapacityFilter(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="all">Todas</option>
-                  <option value="small">Pequena (até 6 pessoas)</option>
-                  <option value="medium">Média (7-10 pessoas)</option>
-                  <option value="large">Grande (11+ pessoas)</option>
-                </select>
+        {showCalendar ? (
+          <CalendarView selectedDate={selectedDate} onDateChange={handleDateChange} />
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nome da sala ou localização..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Equipamentos
-                </label>
-                <select
-                  value={equipmentFilter}
-                  onChange={(e) => setEquipmentFilter(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="all">Todos</option>
-                  <option value="tv">TV</option>
-                  <option value="projetor">Projetor</option>
-                  <option value="whiteboard">Whiteboard</option>
-                  <option value="video">Video Conference</option>
-                </select>
-              </div>
-              
-              <div className="flex items-end">
-                <button
-                  onClick={() => {
-                    setCapacityFilter('all');
-                    setEquipmentFilter('all');
-                    setSearchTerm('');
-                  }}
-                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
-                >
-                  Limpar Filtros
-                </button>
-              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center space-x-2 px-4 py-3 border rounded-lg transition-colors duration-200 ${
+                  showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="w-5 h-5" />
+                <span>Filtros</span>
+              </button>
             </div>
-          </div>
+            
+            {showFilters && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Capacidade
+                    </label>
+                    <select
+                      value={capacityFilter}
+                      onChange={(e) => setCapacityFilter(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="all">Todas</option>
+                      <option value="small">Pequena (até 6 pessoas)</option>
+                      <option value="medium">Média (7-10 pessoas)</option>
+                      <option value="large">Grande (11+ pessoas)</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Equipamentos
+                    </label>
+                    <select
+                      value={equipmentFilter}
+                      onChange={(e) => setEquipmentFilter(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="all">Todos</option>
+                      <option value="tv">TV</option>
+                      <option value="projetor">Projetor</option>
+                      <option value="whiteboard">Whiteboard</option>
+                      <option value="video">Video Conference</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex items-end">
+                    <button
+                      onClick={() => {
+                        setCapacityFilter('all');
+                        setEquipmentFilter('all');
+                        setSearchTerm('');
+                      }}
+                      className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                    >
+                      Limpar Filtros
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredRooms.map((room) => (
-          <RoomCard
-            key={room.id}
-            room={room}
-            selectedDate=""
-            selectedTime=""
-            onSelect={setSelectedRoom}
-          />
-        ))}
-      </div>
-      
-      {filteredRooms.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-gray-400" />
+      {!showCalendar && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRooms.map((room) => (
+              <RoomCard
+                key={room.id}
+                room={room}
+                onSelect={setSelectedRoom}
+              />
+            ))}
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma sala encontrada</h3>
-          <p className="text-gray-600">Tente ajustar seus filtros de busca</p>
-        </div>
+          
+          {filteredRooms.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma sala encontrada</h3>
+              <p className="text-gray-600">Tente ajustar seus filtros de busca</p>
+            </div>
+          )}
+        </>
       )}
       
       <ReservationModal
         room={selectedRoom}
         onClose={() => setSelectedRoom(null)}
-        onConfirm={handleReservation}
+        onConfirm={handleConfirmReservation}
+        users={mockUsers}
+        reservations={myReservations}
+        selectedDate={selectedDate.toISOString().split('T')[0]}
+      />
+
+      <MyReservations 
+        reservations={myReservations}
+        onCancel={handleCancelReservation}
       />
     </div>
   );

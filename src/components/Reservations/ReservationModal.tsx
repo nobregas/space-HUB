@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, Users, MapPin } from 'lucide-react';
-import type { Room } from '@/types';
+import { X, Users, MapPin } from 'lucide-react';
+import type { Room, User, Reservation } from '@/types';
+import UserSelector from './UserSelector';
+import TimeSlotPicker from './TimeSlotPicker';
+import Alert from '../common/Alert';
 
 interface ReservationModalProps {
   room: Room | null;
@@ -11,32 +14,57 @@ interface ReservationModalProps {
     startTime: string;
     endTime: string;
     purpose: string;
+    attendees: User[];
   }) => void;
+  users: User[];
+  reservations: Reservation[];
+  selectedDate: string;
 }
 
-const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onConfirm }) => {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [startTime, setStartTime] = useState('09:00');
-  const [endTime, setEndTime] = useState('10:00');
+const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onConfirm, users, reservations, selectedDate }) => {
   const [purpose, setPurpose] = useState('');
+  const [selectedAttendees, setSelectedAttendees] = useState<User[]>([]);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<{ start: string | null; end: string | null }>({ start: null, end: null });
+  const [alert, setAlert] = useState<{ message: string; type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
 
   if (!room) return null;
 
+  const handleToggleAttendee = (user: User) => {
+    setSelectedAttendees(prev => {
+      if (prev.find(u => u.id === user.id)) {
+        return prev.filter(u => u.id !== user.id);
+      } else {
+        return [...prev, user];
+      }
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedTimeRange.start || !selectedTimeRange.end || selectedTimeRange.start === selectedTimeRange.end) {
+      setAlert({ message: 'Por favor, selecione um horário de início e fim diferentes.', type: 'warning' });
+      return;
+    }
+
     onConfirm({
       roomId: room.id,
-      date,
-      startTime,
-      endTime,
-      purpose
+      date: selectedDate,
+      startTime: selectedTimeRange.start,
+      endTime: selectedTimeRange.end,
+      purpose,
+      attendees: selectedAttendees,
     });
-    onClose();
+
+    setAlert({ message: 'Reserva confirmada com sucesso!', type: 'success' });
+
+    setTimeout(() => {
+      onClose();
+    }, 2000);
   };
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Confirmar Reserva</h2>
@@ -47,87 +75,46 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
               <X className="w-6 h-6" />
             </button>
           </div>
-          
-          <div className="mb-6">
-            <img
-              src={room.image}
-              alt={room.name}
-              className="w-full h-32 object-cover rounded-lg mb-3"
-            />
-            <h3 className="font-semibold text-gray-900 text-lg">{room.name}</h3>
-            <div className="flex items-center text-gray-500 text-sm mt-1">
-              <MapPin className="w-4 h-4 mr-1" />
-              {room.location}
+
+          {alert && (
+            <div className="mb-4">
+              <Alert
+                message={alert.message}
+                type={alert.type}
+                onClose={() => setAlert(null)}
+              />
             </div>
-            <div className="flex items-center text-gray-500 text-sm mt-1">
-              <Users className="w-4 h-4 mr-1" />
-              Capacidade: {room.capacity} pessoas
+          )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <img
+                src={room.image}
+                alt={room.name}
+                className="w-full h-40 object-cover rounded-lg mb-3"
+              />
+              <h3 className="font-semibold text-gray-900 text-lg">{room.name}</h3>
+              <div className="flex items-center text-gray-500 text-sm mt-1">
+                <MapPin className="w-4 h-4 mr-1" />
+                {room.location}
+              </div>
+              <div className="flex items-center text-gray-500 text-sm mt-1">
+                <Users className="w-4 h-4 mr-1" />
+                Capacidade: {room.capacity} pessoas
+              </div>
+            </div>
+            <div>
+              <TimeSlotPicker
+                room={room}
+                selectedDate={selectedDate}
+                reservations={reservations}
+                selectedTimeRange={selectedTimeRange}
+                onSelectTimeRange={setSelectedTimeRange}
+              />
             </div>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Calendar className="w-4 h-4 inline mr-1" />
-                Data
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Clock className="w-4 h-4 inline mr-1" />
-                  Início
-                </label>
-                <select
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const hour = 8 + i;
-                    const time = `${hour.toString().padStart(2, '0')}:00`;
-                    return (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fim
-                </label>
-                <select
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  {Array.from({ length: 12 }, (_, i) => {
-                    const hour = 8 + i + 1;
-                    const time = `${hour.toString().padStart(2, '0')}:00`;
-                    return (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Finalidade da Reunião
@@ -141,6 +128,12 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
                 required
               />
             </div>
+
+            <UserSelector 
+              users={users}
+              selectedAttendees={selectedAttendees}
+              onToggleAttendee={handleToggleAttendee}
+            />
             
             <div className="flex space-x-3 pt-4">
               <button

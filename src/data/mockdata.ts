@@ -92,6 +92,8 @@ export const mockReservations: Reservation[] = [
     startTime: "10:00",
     endTime: "11:30",
     status: "confirmed",
+    purpose: "Reunião de equipe",
+    attendees: [mockUsers[0], mockUsers[1]],
   },
   {
     id: "2",
@@ -103,6 +105,8 @@ export const mockReservations: Reservation[] = [
     startTime: "14:00",
     endTime: "16:00",
     status: "confirmed",
+    purpose: "Apresentação para cliente",
+    attendees: [mockUsers[1], mockUsers[2]],
   },
 ];
 
