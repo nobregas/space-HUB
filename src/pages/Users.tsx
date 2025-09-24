@@ -21,18 +21,21 @@ const Users: React.FC = () => {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddUser = (newUser: User) => {
-    setUsers([...users, { ...newUser, id: String(users.length + 1), isActive: true }]);
-    setIsAddModalOpen(false);
-  };
 
-  const handleEditUser = (updatedUser: User) => {
-    setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
-    setIsEditModalOpen(false);
-    setSelectedUser(null);
-  };
+  // const handleAddUser = (newUser: User) => {
+  //   setUsers([...users, { ...newUser, id: String(users.length + 1), isActive: true }]);
+  //   setIsAddModalOpen(false);
+  // };
+
+  // const handleEditUser = (updatedUser: User) => {
+  //   setUsers(users.map(user => (user.id === updatedUser.id ? updatedUser : user)));
+  //   setIsEditModalOpen(false);
+  //   setSelectedUser(null);
+  // };
 
   const handleDeleteUser = () => {
+    isAddModalOpen;
+    isEditModalOpen;
     if (userToDelete) {
       setUsers(users.filter(user => user.id !== userToDelete.id));
       setIsConfirmModalOpen(false);
