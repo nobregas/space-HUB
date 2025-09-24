@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
             <Wifi className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">SPACE-HUB</h1>
+            <h1 className="text-xl font-bold text-gray-900">Space-Hub</h1>
             <p className="text-sm text-gray-500">Coworking Management</p>
           </div>
         </div>
