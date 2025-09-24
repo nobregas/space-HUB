@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import RoomCard from '../components/Reservations/RoomCard';
 import ReservationModal from '../components/Reservations/ReservationModal';
-import MyReservations from '../components/Reservations/MyReservations';
+import AllReservations from '../components/Reservations/AllReservations';
 import CalendarView from '../components/Reservations/CalendarView';
 import { Filter, Search, Calendar, ArrowLeft } from 'lucide-react';
 import type { Room, Reservation, User } from '@/types';
@@ -14,7 +14,7 @@ const Reservations: React.FC = () => {
   const [equipmentFilter, setEquipmentFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [myReservations, setMyReservations] = useState<Reservation[]>(mockReservations);
+  const [allReservations, setAllReservations] = useState<Reservation[]>(mockReservations);
   const [showCalendar, setShowCalendar] = useState(true);
 
   const handleDateChange = (date: Date) => {
@@ -49,18 +49,18 @@ const Reservations: React.FC = () => {
 
     const newReservation: Reservation = {
       ...reservationData,
-      id: String(myReservations.length + 1),
+      id: String(allReservations.length + 1),
       roomName: selectedRoom.name,
       userId: '1', // Mock user ID
       userName: 'Ana Silva', // Mock user
       status: 'confirmed',
     };
 
-    setMyReservations(prev => [...prev, newReservation]);
+    setAllReservations(prev => [...prev, newReservation]);
   };
 
   const handleCancelReservation = (reservationId: string) => {
-    setMyReservations(prev => prev.filter(res => res.id !== reservationId));
+    setAllReservations(prev => prev.filter(res => res.id !== reservationId));
   };
 
   return (
@@ -197,12 +197,12 @@ const Reservations: React.FC = () => {
         onClose={() => setSelectedRoom(null)}
         onConfirm={handleConfirmReservation}
         users={mockUsers}
-        reservations={myReservations}
+        reservations={allReservations}
         selectedDate={selectedDate.toISOString().split('T')[0]}
       />
 
-      <MyReservations 
-        reservations={myReservations}
+      <AllReservations 
+        reservations={allReservations}
         onCancel={handleCancelReservation}
       />
     </div>

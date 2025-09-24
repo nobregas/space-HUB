@@ -200,8 +200,8 @@ const CheckinDashboard: React.FC<CheckinDashboardProps> = ({ reservations }) => 
             Visualize e gerencie as entradas e saídas do dia.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
+        <div className="flex items-center justify-center gap-4">
+          <div className="text-right ">
             <p className="text-lg font-bold text-gray-800">Ocupação Total</p>
             <p className="text-3xl font-bold text-blue-600">{totalOccupancy}</p>
           </div>
