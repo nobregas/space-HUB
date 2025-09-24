@@ -48,6 +48,8 @@ export const mockUsers: User[] = [
     id: "1",
     name: "Ana Silva",
     email: "ana@example.com",
+    company: "Tech Solutions Inc.",
+    isActive: true,
     avatar:
       "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100",
     isCheckedIn: true,
@@ -60,6 +62,8 @@ export const mockUsers: User[] = [
     id: "2",
     name: "Carlos Mendes",
     email: "carlos@example.com",
+    company: "Global Innovations Ltd.",
+    isActive: true,
     avatar:
       "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100",
     isCheckedIn: true,
@@ -72,12 +76,41 @@ export const mockUsers: User[] = [
     id: "3",
     name: "Marina Costa",
     email: "marina@example.com",
+    company: "Creative Minds Agency",
+    isActive: false,
     avatar:
       "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100",
     isCheckedIn: false,
     skills: ["Marketing Digital", "SEO", "Content Strategy"],
     interests: ["Marketing", "Redes Sociais", "Fotografia"],
     role: "Marketing Manager",
+  },
+  {
+    id: "4",
+    name: "Pedro Almeida",
+    email: "pedro@example.com",
+    company: "Tech Solutions Inc.",
+    isActive: true,
+    avatar:
+      "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100",
+    isCheckedIn: false,
+    skills: ["Java", "Spring Boot", "Cloud Computing"],
+    interests: ["Desenvolvimento Backend", "DevOps", "Segurança"],
+    role: "Backend Developer",
+  },
+  {
+    id: "5",
+    name: "Sofia Oliveira",
+    email: "sofia@example.com",
+    company: "Global Innovations Ltd.",
+    isActive: true,
+    avatar:
+      "https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=100",
+    isCheckedIn: true,
+    checkInTime: "10:00",
+    skills: ["Product Management", "Agile", "Scrum"],
+    interests: ["Gestão de Projetos", "Inovação", "Liderança"],
+    role: "Product Manager",
   },
 ];
 

@@ -6,6 +6,7 @@ import CheckIn from "./pages/Checkin";
 import Events from "./pages/Events";
 import Reports from "./pages/Reports";
 import Reservations from "./pages/Reservations";
+import Users from "./pages/Users"; // Import the Users component
 import type { Reservation } from "@/types";
 import { mockReservations } from "@/data/mockdata";
 import Alert from "@/components/common/Alert";
@@ -72,6 +73,8 @@ function App() {
             onCancelReservation={handleCancelReservation}
           />
         );
+      case "users": // New case for Users page
+        return <Users />;
       case "events":
         return <Events />;
       case "reports":

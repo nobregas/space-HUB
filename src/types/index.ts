@@ -29,6 +29,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  company?: string;
+  isActive: boolean;
   avatar: string;
   isCheckedIn: boolean;
   checkInTime?: string;
