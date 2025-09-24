@@ -21,6 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     { id: "checkin", label: "Check-in", icon: LogIn },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
     { id: "events", label: "Eventos", icon: Clock },
+    { id: "settings", label: "Configurações", icon: Settings },
   ];
 
   return (
@@ -62,12 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         </ul>
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg w-full transition-colors duration-200">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium">Configurações</span>
-        </button>
-      </div>
     </div>
   );
 };
