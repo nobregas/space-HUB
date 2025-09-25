@@ -43,7 +43,7 @@ const CheckinListItem: React.FC<CheckinListItemProps> = ({ entry, statusConfig, 
 
   return (
     <>
-      <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between transition-all hover:shadow-md">
+      <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between transition-all hover:shadow-md hover:scale-101">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <img src={entry.user.avatar} alt={entry.user.name} className="w-12 h-12 rounded-full" />
           <div className="truncate">

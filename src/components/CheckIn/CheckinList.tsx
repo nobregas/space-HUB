@@ -17,7 +17,7 @@ interface CheckinListProps {
 
 const CheckinList: React.FC<CheckinListProps> = ({ entries, statusConfig, onCheckIn, onCheckOut }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       {entries.length > 0 ? (
         entries.map((entry) => (
           <CheckinListItem key={entry.id} entry={entry} statusConfig={statusConfig} onCheckIn={onCheckIn} onCheckOut={onCheckOut} />
