@@ -11,7 +11,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onClose, us
   if (!isOpen || !user) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/90 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
+    <div className="fixed inset-0 z-50 bg-black/90 overflow-y-auto h-full w-full flex justify-center items-center">
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
         <h2 className="text-2xl font-bold mb-4">Detalhes do Usuário</h2>
         <div className="flex items-center mb-4">
@@ -38,11 +38,11 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ isOpen, onClose, us
           <li>2025-09-15: Check-in no Focus Room (13:00 - 16:00)</li>
         </ul>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end hover:scale-101">
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded cursor-pointer"
+            className="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded  cursor-pointer"
           >
             Fechar
           </button>
