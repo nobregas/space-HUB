@@ -11,6 +11,12 @@ interface CheckinFiltersProps {
 
 const CheckinFilters: React.FC<CheckinFiltersProps> = ({ activeFilter, onFilterChange, searchTerm, onSearchChange }) => {
   const filters: ("all" | CheckinStatus)[] = ['all', 'waiting', 'checked-in', 'checked-out'];
+  const filterLabels: Record<"all" | CheckinStatus, string> = {
+    all: 'Todos',
+    waiting: 'Aguardando',
+    'checked-in': 'Presente',
+    'checked-out': 'Finalizado',
+  };
   const filterStyles = {
     all: { base: 'text-gray-600 hover:bg-gray-100', active: 'bg-blue-100 text-blue-700' },
     waiting: { base: 'text-gray-600 hover:bg-gray-100', active: 'bg-yellow-100 text-yellow-700' },
@@ -22,7 +28,13 @@ const CheckinFilters: React.FC<CheckinFiltersProps> = ({ activeFilter, onFilterC
     <div className="flex flex-col md:flex-row justify-between items-center mb-4 p-4 bg-white rounded-lg shadow-sm gap-4">
       <div className="flex gap-2">
         {filters.map(filter => (
-          <button key={filter} onClick={() => onFilterChange(filter)} className={`px-4 py-2 rounded-md text-sm font-medium capitalize ${activeFilter === filter ? filterStyles[filter].active : filterStyles[filter].base}`}>{filter === 'all' ? 'Todos' : filter.replace('-', ' ')}</button>
+          <button
+            key={filter}
+            onClick={() => onFilterChange(filter)}
+            className={`px-4 py-2 rounded-md text-sm font-medium ${activeFilter === filter ? filterStyles[filter].active : filterStyles[filter].base}`}
+          >
+            {filterLabels[filter]}
+          </button>
         ))}
       </div>
       <div className="relative w-full md:w-80">
