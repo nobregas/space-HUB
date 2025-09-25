@@ -10,9 +10,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-[100dvh] bg-gray-50 flex">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
           <button
             className="lg:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-gray-100 transition"

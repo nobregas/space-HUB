@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users, MapPin, Monitor, Tv, Webcam, Phone, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
+import { Users, MapPin, Monitor, Tv, Webcam, Phone, AlertTriangle, CheckCircle2, Wrench, CalendarPlus } from 'lucide-react';
 import type { Room } from '@/types';
 
 interface RoomCardProps {
@@ -101,7 +101,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           ].join(' ')}
         >
-          {currentStatus === 'available' ? 'Reservar Sala' : currentStatus === 'maintenance' ? 'Indisponível' : 'Ocupada'}
+          {currentStatus === 'available' ? (
+            <span className="inline-flex items-center justify-center gap-2">
+              <CalendarPlus className="w-4 h-4" />
+              <span>Reservar Sala</span>
+            </span>
+          ) : currentStatus === 'maintenance' ? 'Indisponível' : 'Ocupada'}
         </button>
       </div>
     </div>

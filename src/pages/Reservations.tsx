@@ -3,7 +3,7 @@ import RoomCard from '../components/Reservations/RoomCard';
 import ReservationModal from '../components/Reservations/ReservationModal';
 import AllReservations from '../components/Reservations/AllReservations';
 import CustomCalendar from '../components/Reservations/CustomCalendar';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, ListOrdered, CalendarDays } from 'lucide-react';
 import type { Room, Reservation, User } from '@/types';
 import { mockRooms, mockUsers } from '@/data/mockdata';
 
@@ -24,6 +24,7 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedRange, setSelectedRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  const [activeTab, setActiveTab] = useState<'reserve' | 'all'>('reserve');
   
   // Dias esgotados: quando todas as salas estão indisponíveis (ocupadas ou manutenção)
   const unavailableDates: string[] = (() => {
@@ -102,112 +103,135 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
   return (
     <div className="p-4 sm:p-6">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Reservar Sala</h1>
-        <p className="text-gray-600 mt-1 text-sm sm:text-base">
-          {selectedRange.start && selectedRange.end
-            ? `Mostrando salas de ${selectedRange.start.toLocaleDateString('pt-BR')} até ${selectedRange.end.toLocaleDateString('pt-BR')}`
-            : `Mostrando salas para ${selectedDate.toLocaleDateString('pt-BR')}`}
-        </p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Reservas</h1>
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e visualize suas reservas</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        <div className="lg:col-span-4 lg:sticky lg:top-4 h-max">
-          <CustomCalendar selectedDate={selectedDate} onDateChange={handleDateChange} onRangeChange={handleRangeChange} unavailableDates={unavailableDates} />
-        </div>
+      <div className="mb-4 border-b border-gray-200">
+        <nav className="-mb-px flex gap-4" aria-label="Tabs">
+          <button
+            className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 border-b-2 text-sm font-medium focus:outline-none ${
+              activeTab === 'reserve' ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:scale-101 hover:text-gray-700 hover:border-gray-300'
+            }`}
+            onClick={() => setActiveTab('reserve')}
+          >
+            <CalendarDays className="w-4 h-4" />
+            <span>Reservar Sala</span>
+          </button>
+          <button
+            className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 border-b-2 text-sm font-medium focus:outline-none ${
+              activeTab === 'all' ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:scale-101 hover:text-gray-700 hover:border-gray-300'
+            }`}
+            onClick={() => setActiveTab('all')}
+          >
+            <ListOrdered className="w-4 h-4" />
+            <span>Todas as Reservas</span>
+          </button>
+        </nav>
+      </div>
 
-        <div className="lg:col-span-8">
-          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2  text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Buscar por nome da sala ou localização..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
-              />
-            </div>
-            
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg transition-colors duration-200 bg-white ${
-                showFilters ? 'border-blue-300 text-blue-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Filter className="w-5 h-5" />
-              <span>Filtros</span>
-            </button>
+      {activeTab === 'reserve' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          <div className="lg:col-span-4 lg:sticky lg:top-4 h-max">
+            <CustomCalendar selectedDate={selectedDate} onDateChange={handleDateChange} onRangeChange={handleRangeChange} unavailableDates={unavailableDates} />
           </div>
 
-          {showFilters && (
-            <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Capacidade</label>
-                  <select
-                    value={capacityFilter}
-                    onChange={(e) => setCapacityFilter(e.target.value)}
-                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="all">Todas</option>
-                    <option value="small">Pequena (até 6 pessoas)</option>
-                    <option value="medium">Média (7-10 pessoas)</option>
-                    <option value="large">Grande (11+ pessoas)</option>
-                  </select>
-                </div>
+          <div className="lg:col-span-8">
+            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2  text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nome da sala ou localização..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                />
+              </div>
+              
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg transition-colors duration-200 bg-white ${
+                  showFilters ? 'border-blue-300 text-blue-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Filter className="w-5 h-5" />
+                <span>Filtros</span>
+              </button>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Equipamentos</label>
-                  <select
-                    value={equipmentFilter}
-                    onChange={(e) => setEquipmentFilter(e.target.value)}
-                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="all">Todos</option>
-                    <option value="tv">TV</option>
-                    <option value="projetor">Projetor</option>
-                    <option value="whiteboard">Whiteboard</option>
-                    <option value="video">Video Conference</option>
-                  </select>
-                </div>
+            {showFilters && (
+              <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Capacidade</label>
+                    <select
+                      value={capacityFilter}
+                      onChange={(e) => setCapacityFilter(e.target.value)}
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="all">Todas</option>
+                      <option value="small">Pequena (até 6 pessoas)</option>
+                      <option value="medium">Média (7-10 pessoas)</option>
+                      <option value="large">Grande (11+ pessoas)</option>
+                    </select>
+                  </div>
 
-                <div className="flex items-end">
-                  <button
-                    onClick={() => {
-                      setCapacityFilter('all');
-                      setEquipmentFilter('all');
-                      setSearchTerm('');
-                    }}
-                    className="px-3 sm:px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
-                  >
-                    Limpar Filtros
-                  </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Equipamentos</label>
+                    <select
+                      value={equipmentFilter}
+                      onChange={(e) => setEquipmentFilter(e.target.value)}
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="all">Todos</option>
+                      <option value="tv">TV</option>
+                      <option value="projetor">Projetor</option>
+                      <option value="whiteboard">Whiteboard</option>
+                      <option value="video">Video Conference</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-end">
+                    <button
+                      onClick={() => {
+                        setCapacityFilter('all');
+                        setEquipmentFilter('all');
+                        setSearchTerm('');
+                      }}
+                      className="px-3 sm:px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                    >
+                      Limpar Filtros
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-            {filteredRooms.map((room) => (
-              <RoomCard key={room.id} room={room} onSelect={setSelectedRoom} />
-            ))}
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              {filteredRooms.map((room) => (
+                <RoomCard key={room.id} room={room} onSelect={setSelectedRoom} />
+              ))}
+            </div>
+
+            {filteredRooms.length === 0 && (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma sala encontrada</h3>
+                <p className="text-gray-600">Tente ajustar seus filtros de busca</p>
+              </div>
+            )}
           </div>
-
-          {filteredRooms.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma sala encontrada</h3>
-              <p className="text-gray-600">Tente ajustar seus filtros de busca</p>
-            </div>
-          )}
         </div>
+      )}
 
+      {activeTab === 'all' && (
         <div className="lg:col-span-12">
           <AllReservations reservations={reservations} onCancelReservation={onCancelReservation} />
         </div>
-      </div>
+      )}
 
       <ReservationModal
         room={selectedRoom}
