@@ -92,7 +92,7 @@ const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ room, selectedDate, res
     <div>
       <h4 className="font-medium text-gray-800 mb-3">Selecione um ou mais horários:</h4>
       {selectedTimeRange.start && !selectedTimeRange.end && (
-        <p className="text-sm text-blue-600 mb-2">Selecione o horário de término.</p>
+        <p className="text-sm text-primary-700 mb-2">Selecione o horário de término.</p>
       )}
       <div className="grid grid-cols-4 gap-2">
         {timeSlots.map(slot => {
@@ -109,10 +109,10 @@ const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ room, selectedDate, res
                 isOccupied
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : isInRange
-                  ? 'bg-blue-600 text-white font-semibold'
+                  ? 'bg-primary-600 text-white font-semibold'
                   : isSelected
-                  ? 'bg-blue-400 text-white'
-                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-primary-50 text-primary-700 hover:bg-primary-100'
               }`}
             >
               {slot}

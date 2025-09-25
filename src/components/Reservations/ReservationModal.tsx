@@ -19,9 +19,10 @@ interface ReservationModalProps {
   users: User[];
   reservations: Reservation[];
   selectedDate: string;
+  selectedDateRange?: { start: string; end: string };
 }
 
-const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onConfirm, users, reservations, selectedDate }) => {
+const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onConfirm, users, reservations, selectedDate, selectedDateRange }) => {
   const [purpose, setPurpose] = useState('');
   const [selectedAttendees, setSelectedAttendees] = useState<User[]>([]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<{ start: string | null; end: string | null }>({ start: null, end: null });
@@ -46,14 +47,31 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
       return;
     }
 
-    onConfirm({
-      roomId: room.id,
-      date: selectedDate,
-      startTime: selectedTimeRange.start,
-      endTime: selectedTimeRange.end,
-      purpose,
-      attendees: selectedAttendees,
-    });
+    // Se houver um intervalo de datas selecionado, cria reservas para cada dia
+    if (selectedDateRange && selectedDateRange.start && selectedDateRange.end) {
+      const start = new Date(`${selectedDateRange.start}T00:00:00`);
+      const end = new Date(`${selectedDateRange.end}T00:00:00`);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        onConfirm({
+          roomId: room.id,
+          date: dateStr,
+          startTime: selectedTimeRange.start,
+          endTime: selectedTimeRange.end,
+          purpose,
+          attendees: selectedAttendees,
+        });
+      }
+    } else {
+      onConfirm({
+        roomId: room.id,
+        date: selectedDate,
+        startTime: selectedTimeRange.start,
+        endTime: selectedTimeRange.end,
+        purpose,
+        attendees: selectedAttendees,
+      });
+    }
 
     setAlert({ message: 'Reserva confirmada com sucesso!', type: 'success' });
 
@@ -115,6 +133,13 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
+            {selectedDateRange && (
+              <div className="p-3 rounded-lg bg-primary-50 text-primary-800 text-sm">
+                Reservando de <strong>{new Date(`${selectedDateRange.start}T00:00:00`).toLocaleDateString('pt-BR')}</strong>
+                {' '}até{' '}
+                <strong>{new Date(`${selectedDateRange.end}T00:00:00`).toLocaleDateString('pt-BR')}</strong>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Finalidade da Reunião
@@ -124,7 +149,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
                 onChange={(e) => setPurpose(e.target.value)}
                 placeholder="Descreva brevemente o propósito da reunião..."
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                 required
               />
             </div>
@@ -145,7 +170,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
               >
                 Confirmar Reserva
               </button>

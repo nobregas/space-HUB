@@ -3,6 +3,7 @@ import { mockUsers } from "../data/mockdata";
 import type { User } from "@/types";
 import ConfirmationModal from "../components/common/ConfirmationModal";
 import UserDetailsModal from "../components/Users/UserDetailsModal";
+import { Eye, EyeOff, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>(mockUsers);
@@ -54,30 +55,38 @@ const Users: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Gerenciamento de Usuários</h1>
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
+        <p className="text-gray-600 mt-1">
+          Gerencie os usuários da sua plataforma
+        </p>
+      </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <input
-          type="text"
-          placeholder="Buscar por nome ou e-mail..."
-          className="p-2 border border-gray-300 rounded-md w-1/3 bg-white"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="relative w-full md:w-1/3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por nome ou e-mail..."
+            className="p-2 pl-10 border border-gray-300 rounded-md w-full bg-white"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer"
+          className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 cursor-pointer flex items-center justify-center gap-2"
           onClick={() => {
             setSelectedUser(null);
             setIsAddModalOpen(true);
           }}
         >
-          Adicionar Novo Usuário
+          <Plus size={20} />
+          <span className="hidden sm:inline">Adicionar Usuário</span>
         </button>
       </div>
 
-      {/* User List Table */}
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -93,7 +102,7 @@ const Users: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Ações
               </th>
             </tr>
@@ -129,38 +138,43 @@ const Users: React.FC = () => {
                     {user.isActive ? "Ativo" : "Inativo"}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setIsEditModalOpen(true);
-                    }}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-900 mr-4"
-                    onClick={() => {
-                      setUserToDelete(user);
-                      setIsConfirmModalOpen(true);
-                    }}
-                  >
-                    Deletar
-                  </button>
-                  <button
-                    className={`${
-                      user.isActive
-                        ? "text-yellow-600 hover:text-yellow-900"
-                        : "text-green-600 hover:text-green-900"
-                    }`}
-                    onClick={() => {
-                      setUserToToggle(user);
-                      setIsToggleConfirmModalOpen(true);
-                    }}
-                  >
-                    {user.isActive ? "Desativar" : "Ativar"}
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      title="Editar"
+                      className="text-indigo-600 hover:text-indigo-900"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    <button
+                      title="Deletar"
+                      className="text-red-600 hover:text-red-900"
+                      onClick={() => {
+                        setUserToDelete(user);
+                        setIsConfirmModalOpen(true);
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                    <button
+                      title={user.isActive ? "Desativar" : "Ativar"}
+                      className={`${
+                        user.isActive
+                          ? "text-yellow-600 hover:text-yellow-900"
+                          : "text-green-600 hover:text-green-900"
+                      }`}
+                      onClick={() => {
+                        setUserToToggle(user);
+setIsToggleConfirmModalOpen(true);
+                      }}
+                    >
+                      {user.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

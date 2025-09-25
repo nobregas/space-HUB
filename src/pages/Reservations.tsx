@@ -23,10 +23,18 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
   const [equipmentFilter, setEquipmentFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedRange, setSelectedRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
   const [showCalendar, setShowCalendar] = useState(true);
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
+    setSelectedRange({ start: null, end: null });
+    setShowCalendar(false);
+  };
+
+  const handleRangeChange = (range: { start: Date; end: Date }) => {
+    setSelectedRange(range);
+    setSelectedDate(range.start);
     setShowCalendar(false);
   };
 
@@ -58,48 +66,50 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+    <div className="p-4 sm:p-6">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Reservar Sala</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Reservar Sala</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
               {showCalendar 
                 ? 'Selecione uma data no calendário para ver as salas disponíveis' 
+                : selectedRange.start && selectedRange.end
+                ? `Mostrando salas de ${selectedRange.start.toLocaleDateString('pt-BR')} até ${selectedRange.end.toLocaleDateString('pt-BR')}`
                 : `Mostrando salas para ${selectedDate.toLocaleDateString('pt-BR')}`}
             </p>
           </div>
           {!showCalendar && (
             <button
               onClick={() => setShowCalendar(true)}
-              className="flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors duration-200 hover:bg-gray-50 hover::color-gray-900 cursor-pointer"
+              className="flex items-center space-x-2 px-3 py-2 sm:px-4 border rounded-lg transition-colors duration-200 hover:bg-gray-50 cursor-pointer text-gray-700"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span >Voltar</span>
+              <span>Voltar</span>
             </button>
           )}
         </div>
         
         {showCalendar ? (
-          <CalendarView selectedDate={selectedDate} onDateChange={handleDateChange} />
+          <CalendarView selectedDate={selectedDate} onDateChange={handleDateChange} onRangeChange={handleRangeChange} />
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-              <div className="relative flex-1">
+            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+              <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Buscar por nome da sala ou localização..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
               
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center space-x-2 px-4 py-3 border rounded-lg transition-colors duration-200 ${
-                  showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
+                className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border rounded-lg transition-colors duration-200 ${
+                  showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 <Filter className="w-5 h-5" />
@@ -108,8 +118,8 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
             </div>
             
             {showFilters && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Capacidade
@@ -117,7 +127,7 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
                     <select
                       value={capacityFilter}
                       onChange={(e) => setCapacityFilter(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     >
                       <option value="all">Todas</option>
                       <option value="small">Pequena (até 6 pessoas)</option>
@@ -133,7 +143,7 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
                     <select
                       value={equipmentFilter}
                       onChange={(e) => setEquipmentFilter(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     >
                       <option value="all">Todos</option>
                       <option value="tv">TV</option>
@@ -150,7 +160,7 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
                         setEquipmentFilter('all');
                         setSearchTerm('');
                       }}
-                      className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                      className="px-3 sm:px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200"
                     >
                       Limpar Filtros
                     </button>
@@ -164,7 +174,7 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
       
       {!showCalendar && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredRooms.map((room) => (
               <RoomCard
                 key={room.id}
