@@ -18,7 +18,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white rounded-xl shadow-sm border hover:scale-101 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="aspect-video relative overflow-hidden">
         <img
           src={room.image}
@@ -57,7 +57,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
         
         <button
           onClick={() => onSelect(room)}
-          className="w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700"
+          className="w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700 hover:scale-101"
         >
           Reservar Sala
         </button>

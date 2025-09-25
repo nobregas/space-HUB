@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Reservation } from '@/types';
 import { Calendar, Clock, Trash2, User2 } from 'lucide-react';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 interface AllReservationsProps {
   reservations: Reservation[];
@@ -11,6 +12,27 @@ interface AllReservationsProps {
 const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCancelReservation }) => {
   // No longer filtering for upcoming reservations, show all
   const allReservations = reservations;
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingCancelId, setPendingCancelId] = useState<string | null>(null);
+
+  const requestCancel = (reservationId: string) => {
+    setPendingCancelId(reservationId);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = () => {
+    if (pendingCancelId) {
+      onCancelReservation(pendingCancelId);
+    }
+    setConfirmOpen(false);
+    setPendingCancelId(null);
+  };
+
+  const handleClose = () => {
+    setConfirmOpen(false);
+    setPendingCancelId(null);
+  };
 
   return (
     <div className="mt-12">
@@ -31,7 +53,7 @@ const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCance
                 </div>
               </div>
               <button
-                onClick={() => onCancelReservation(reservation.id)}
+                onClick={() => requestCancel(reservation.id)}
                 className="text-red-500 hover:text-red-700 transition-colors"
                 aria-label="Cancelar reserva"
               >
@@ -45,6 +67,14 @@ const AllReservations: React.FC<AllReservationsProps> = ({ reservations, onCance
           <p className="text-gray-600">Nenhuma reserva encontrada.</p>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={confirmOpen}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        title="Cancelar reserva"
+        message="Tem certeza que deseja cancelar esta reserva? Esta ação não pode ser desfeita."
+        confirmButtonColor="bg-red-600 hover:bg-red-700"
+      />
     </div>
   );
 };
