@@ -201,8 +201,8 @@ const CheckinDashboard: React.FC<CheckinDashboardProps> = ({ reservations }) => 
           </p>
         </div>
         <div className="flex items-center justify-center gap-4">
-          <div className="flex items-baseline gap-2 text-right">
-            <span className="text-lg font-bold text-gray-800">Ocupação Total</span>
+        <span className="text-lg font-bold text-gray-800">Ocupação Total</span>
+          <div className="flex items-baseline gap-2 text-center">
             <span className="text-3xl font-bold text-blue-600">{totalOccupancy}</span>
           </div>
           <button
