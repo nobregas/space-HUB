@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import Sidebar from "@/components/Layout/SideBar";
+import AppLayout from "@/components/Layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CheckIn from "./pages/Checkin";
 import Events from "./pages/Events";
@@ -28,6 +29,8 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  // controle da sidebar responsiva movido para AppLayout
 
   const handleReservation = (
     reservation: Omit<
@@ -60,41 +63,35 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        {alert && (
-          <div className="fixed top-5 right-5 z-50">
-            <Alert
-              message={alert.message}
-              type={alert.type}
-              onClose={() => setAlert(null)}
+    <AppLayout>
+      {alert && (
+        <div className="fixed top-5 right-5 z-50">
+          <Alert
+            message={alert.message}
+            type={alert.type}
+            onClose={() => setAlert(null)}
+          />
+        </div>
+      )}
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/checkin" element={<CheckIn reservations={reservations} />} />
+        <Route
+          path="/reservations"
+          element={
+            <Reservations
+              reservations={reservations}
+              onConfirmReservation={handleReservation}
+              onCancelReservation={handleCancelReservation}
             />
-          </div>
-        )}
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route
-            path="/checkin"
-            element={<CheckIn reservations={reservations} />}
-          />
-          <Route
-            path="/reservations"
-            element={
-              <Reservations
-                reservations={reservations}
-                onConfirmReservation={handleReservation}
-                onCancelReservation={handleCancelReservation}
-              />
-            }
-          />
-          <Route path="/users" element={<Users />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/reports" element={<Reports />} />
-        </Routes>
-      </main>
-    </div>
+          }
+        />
+        <Route path="/users" element={<Users />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/reports" element={<Reports />} />
+      </Routes>
+    </AppLayout>
   );
 }
 
