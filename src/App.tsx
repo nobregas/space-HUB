@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import Sidebar from "@/components/Layout/SideBar";
 import AppLayout from "@/components/Layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CheckIn from "./pages/Checkin";
