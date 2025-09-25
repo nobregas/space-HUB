@@ -6,15 +6,17 @@ import {
   Home,
   LogIn,
   Settings,
-  Wifi,
   Users,
+  Eclipse,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 interface SidebarProps {
+  isOpen?: boolean; // controla visibilidade no mobile
+  onClose?: () => void; // fecha ao clicar fora ou em um item
 }
 
-const Sidebar: React.FC<SidebarProps> = () => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
     { id: "reservations", label: "Reservas", icon: Calendar, path: "/reservations" },
@@ -26,11 +28,22 @@ const Sidebar: React.FC<SidebarProps> = () => {
   ];
 
   return (
-    <div className="w-64 bg-white shadow-lg h-full flex flex-col">
+    <>
+    {/* Overlay para mobile */}
+    <div
+      className={`fixed inset-0 bg-black/40 transition-opacity duration-300 lg:hidden ${
+        isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={onClose}
+    />
+    <div
+      className={`fixed top-0 left-0 z-40 h-screen w-64 bg-white shadow-lg flex flex-col transform transition-transform duration-300 ease-in-out
+      ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:h-screen`}
+    >
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Wifi className="w-6 h-6 text-white" />
+          <div className="w-10 h-10  rounded-lg flex items-center justify-center">
+            <Eclipse className="w-6 h-6 text-gray-900" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Space-Hub</h1>
@@ -55,6 +68,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     }`
                   }
+                  onClick={onClose}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
@@ -64,8 +78,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
           })}
         </ul>
       </nav>
-
     </div>
+    </>
   );
 };
 
