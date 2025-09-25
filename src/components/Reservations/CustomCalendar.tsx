@@ -5,6 +5,7 @@ interface CustomCalendarProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
   onRangeChange?: (range: { start: Date; end: Date }) => void;
+  unavailableDates?: string[]; // ISO dates (YYYY-MM-DD) esgotados
 }
 
 const WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -19,7 +20,7 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onDateChange, onRangeChange }) => {
+const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onDateChange, onRangeChange, unavailableDates }) => {
   const [visibleMonth, setVisibleMonth] = useState<Date>(startOfDay(selectedDate));
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
@@ -138,6 +139,8 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onDateCha
           const isSelected = isSameDay(date, selectedDate);
           const isPast = date < today;
           const inRange = isInSelectedRange(date);
+          const iso = date.toISOString().split('T')[0];
+          const isUnavailable = !!unavailableDates?.includes(iso);
 
           return (
             <button
@@ -151,9 +154,14 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onDateCha
                 isSelected ? 'bg-primary-600 text-white font-medium shadow' : '',
                 inRange && !isSelected ? 'bg-primary-100 text-primary-800' : '',
                 isToday && !isSelected ? 'ring-2 ring-primary-500' : '',
+                isUnavailable && !isSelected ? 'bg-red-50 text-red-700 ring-1 ring-red-200' : '',
               ].join(' ')}
+              aria-label={isUnavailable ? 'Sem espaços disponíveis' : undefined}
             >
               {date.getDate()}
+              {isUnavailable && !isSelected && (
+                <span className="absolute bottom-0.5 right-0.5 inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+              )}
             </button>
           );
         })}
@@ -163,6 +171,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ selectedDate, onDateCha
         <div className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-primary-600" /> Selecionado</div>
         <div className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-primary-100 border border-primary-300" /> Intervalo</div>
         <div className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full ring-2 ring-primary-500" /> Hoje</div>
+        <div className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-red-500" /> Esgotado</div>
       </div>
     </div>
   );

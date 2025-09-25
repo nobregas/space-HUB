@@ -24,6 +24,43 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedRange, setSelectedRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  
+  // Dias esgotados: quando todas as salas estão indisponíveis (ocupadas ou manutenção)
+  const unavailableDates: string[] = (() => {
+    // Coleta das datas visíveis pode ser grande; simples: derive das reservas existentes
+    // Considera uma data esgotada se, para aquele dia, o número de salas disponíveis (status available) é 0
+    const datesSet = new Set<string>();
+    reservations.forEach((r) => datesSet.add(r.date));
+    // Também incluímos hoje e próximos 30 dias para feedback rápido
+    for (let i = 0; i < 31; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      datesSet.add(d.toISOString().split('T')[0]);
+    }
+
+    const result: string[] = [];
+    datesSet.forEach((iso) => {
+      // Salas bloqueadas por status
+      const blockedByStatus = mockRooms.filter((room) => (room.status ?? (room.isAvailable ? 'available' : 'occupied')) !== 'available').length;
+      // Salas ocupadas por reservas no dia
+      const occupiedRoomIds = new Set(
+        reservations
+          .filter((r) => r.date === iso && r.status !== 'cancelled')
+          .map((r) => r.roomId)
+      );
+      const totalRooms = mockRooms.length;
+      const availableRooms = mockRooms.filter((room) => {
+        const status = room.status ?? (room.isAvailable ? 'available' : 'occupied');
+        if (status !== 'available') return false;
+        if (occupiedRoomIds.has(room.id)) return false;
+        return true;
+      }).length;
+      if (availableRooms === 0 || blockedByStatus === totalRooms) {
+        result.push(iso);
+      }
+    });
+    return result;
+  })();
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
@@ -75,13 +112,13 @@ const Reservations: React.FC<ReservationsProps> = ({ reservations, onConfirmRese
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         <div className="lg:col-span-4 lg:sticky lg:top-4 h-max">
-          <CustomCalendar selectedDate={selectedDate} onDateChange={handleDateChange} onRangeChange={handleRangeChange} />
+          <CustomCalendar selectedDate={selectedDate} onDateChange={handleDateChange} onRangeChange={handleRangeChange} unavailableDates={unavailableDates} />
         </div>
 
         <div className="lg:col-span-8">
           <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Buscar por nome da sala ou localização..."

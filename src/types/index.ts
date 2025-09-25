@@ -1,3 +1,5 @@
+export type RoomStatus = 'available' | 'occupied' | 'maintenance';
+
 export interface Room {
   id: string;
   name: string;
@@ -6,6 +8,8 @@ export interface Room {
   location: string;
   image: string;
   isAvailable: boolean;
+  pricePerHour?: number;
+  status?: RoomStatus;
 }
 
 export interface Reservation {

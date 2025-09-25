@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users, MapPin, Monitor, Tv, Webcam, Phone } from 'lucide-react';
+import { Users, MapPin, Monitor, Tv, Webcam, Phone, AlertTriangle, CheckCircle2, Wrench } from 'lucide-react';
 import type { Room } from '@/types';
 
 interface RoomCardProps {
@@ -17,8 +17,38 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
     return <Monitor className="w-4 h-4" />;
   };
 
+  const statusConfig: Record<string, { color: string; bg: string; text: string; icon: React.ReactNode }> = {
+    available: {
+      color: 'text-green-700',
+      bg: 'bg-green-50 border-green-200',
+      text: 'Disponível',
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+    },
+    occupied: {
+      color: 'text-red-700',
+      bg: 'bg-red-50 border-red-200',
+      text: 'Ocupado',
+      icon: <AlertTriangle className="w-3.5 h-3.5" />,
+    },
+    maintenance: {
+      color: 'text-amber-700',
+      bg: 'bg-amber-50 border-amber-200',
+      text: 'Manutenção',
+      icon: <Wrench className="w-3.5 h-3.5" />,
+    },
+  };
+
+  const currentStatus = room.status ?? (room.isAvailable ? 'available' : 'occupied');
+  const status = statusConfig[currentStatus];
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border hover:scale-101 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="relative bg-white rounded-xl shadow-sm border hover:scale-101 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+      {/* Status badge no canto superior esquerdo do card */}
+      <div className={`absolute top-2 right-2 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${status.bg} ${status.color} z-10`}> 
+        {status.icon}
+        <span>{status.text}</span>
+      </div>
+
       <div className="aspect-video relative overflow-hidden">
         <img
           src={room.image}
@@ -36,6 +66,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
               {room.location}
             </div>
           </div>
+          {room.pricePerHour !== undefined && (
+            <div className="text-right">
+              <div className="text-sm text-gray-500">Preço/hora</div>
+              <div className="text-base font-semibold text-gray-900">R$ {room.pricePerHour.toFixed(2)}</div>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center text-gray-600 text-sm mb-3">
@@ -57,9 +93,15 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onSelect }) => {
         
         <button
           onClick={() => onSelect(room)}
-          className="w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 bg-blue-600 text-white hover:bg-blue-700 hover:scale-101"
+          disabled={currentStatus !== 'available'}
+          className={[
+            'w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 hover:scale-101',
+            currentStatus === 'available'
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          ].join(' ')}
         >
-          Reservar Sala
+          {currentStatus === 'available' ? 'Reservar Sala' : currentStatus === 'maintenance' ? 'Indisponível' : 'Ocupada'}
         </button>
       </div>
     </div>

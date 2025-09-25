@@ -10,6 +10,8 @@ export const mockRooms: Room[] = [
     image:
       "https://images.pexels.com/photos/380768/pexels-photo-380768.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
+    pricePerHour: 85,
+    status: 'available',
   },
   {
     id: "2",
@@ -20,6 +22,8 @@ export const mockRooms: Room[] = [
     image:
       "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: false,
+    pricePerHour: 120,
+    status: 'maintenance',
   },
   {
     id: "3",
@@ -30,6 +34,8 @@ export const mockRooms: Room[] = [
     image:
       "https://images.pexels.com/photos/380768/pexels-photo-380768.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
+    pricePerHour: 55,
+    status: 'available',
   },
   {
     id: "4",
@@ -40,6 +46,8 @@ export const mockRooms: Room[] = [
     image:
       "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
+    pricePerHour: 70,
+    status: 'occupied',
   },
 ];
 
