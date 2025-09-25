@@ -46,7 +46,7 @@ const Events: React.FC = () => {
             <p className="text-gray-600 mt-1">Workshops, palestras e encontros da comunidade</p>
           </div>
           
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-[1.01]">
             <Plus className="w-5 h-5" />
             <span>Criar Evento</span>
           </button>
@@ -156,7 +156,7 @@ const Events: React.FC = () => {
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum evento encontrado</h3>
           <p className="text-gray-600 mb-4">Tente ajustar seus filtros de busca</p>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-[1.01]">
             Criar Primeiro Evento
           </button>
         </div>
