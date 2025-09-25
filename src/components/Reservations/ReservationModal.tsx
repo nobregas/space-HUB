@@ -39,6 +39,7 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
   if (!room) return null;
 
   const handleToggleAttendee = (user: User) => {
+    setPurpose('');
     setSelectedAttendees(prev => {
       if (prev.find(u => u.id === user.id)) {
         return prev.filter(u => u.id !== user.id);
@@ -74,6 +75,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({ room, onClose, onCo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!purpose) {
+      setAlert({ message: 'Por favor, preencha o campo de propósito.', type: 'warning' });
+      return;
+    }
     if (!selectedTimeRange.start || !selectedTimeRange.end || selectedTimeRange.start === selectedTimeRange.end) {
       setAlert({ message: 'Por favor, selecione um horário de início e fim diferentes.', type: 'warning' });
       return;

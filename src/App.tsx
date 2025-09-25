@@ -7,6 +7,7 @@ import Events from "./pages/Events";
 import Reports from "./pages/Reports";
 import Reservations from "./pages/Reservations";
 import Users from "./pages/Users";
+import Settings from "./pages/Settings";
 import type { Reservation } from "@/types";
 import { mockReservations } from "@/data/mockdata";
 import Alert from "@/components/common/Alert";
@@ -89,6 +90,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/events" element={<Events />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </AppLayout>
   );
