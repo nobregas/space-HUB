@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import AppLayout from "@/components/Layout/AppLayout";
-import Dashboard from "./pages/Dashboard";
-import CheckIn from "./pages/Checkin";
-import Events from "./pages/Events";
-import Reports from "./pages/Reports";
-import Reservations from "./pages/Reservations";
-import Users from "./pages/Users";
-import Settings from "./pages/Settings";
 import type { Reservation } from "@/types";
 import { mockReservations } from "@/data/mockdata";
 import Alert from "@/components/common/Alert";
 import { Routes, Route } from "react-router-dom";
+import Login from "./pages/(auth)/Login";
+import AppRoutes from "./routes";
 
 function App() {
   const [reservations, setReservations] =
@@ -63,7 +58,7 @@ function App() {
   };
 
   return (
-    <AppLayout>
+    <>
       {alert && (
         <div className="fixed top-5 right-5 z-50">
           <Alert
@@ -74,25 +69,21 @@ function App() {
         </div>
       )}
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/checkin" element={<CheckIn reservations={reservations} />} />
+        <Route path="/login" element={<Login />} />
         <Route
-          path="/reservations"
+          path="/*"
           element={
-            <Reservations
-              reservations={reservations}
-              onConfirmReservation={handleReservation}
-              onCancelReservation={handleCancelReservation}
-            />
+            <AppLayout>
+              <AppRoutes
+                reservations={reservations}
+                handleReservation={handleReservation}
+                handleCancelReservation={handleCancelReservation}
+              />
+            </AppLayout>
           }
         />
-        <Route path="/users" element={<Users />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/settings" element={<Settings />} />
       </Routes>
-    </AppLayout>
+    </>
   );
 }
 

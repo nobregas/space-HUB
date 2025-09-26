@@ -1,4 +1,11 @@
-import type { OccupancyData, Reservation, Room, User, Event } from "@/types";
+import type {
+  OccupancyData,
+  Reservation,
+  Room,
+  User,
+  Event,
+  Role,
+} from "@/types";
 
 export const mockRooms: Room[] = [
   {
@@ -11,7 +18,7 @@ export const mockRooms: Room[] = [
       "https://images.pexels.com/photos/380768/pexels-photo-380768.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
     pricePerHour: 85,
-    status: 'available',
+    status: "available",
   },
   {
     id: "2",
@@ -23,7 +30,7 @@ export const mockRooms: Room[] = [
       "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: false,
     pricePerHour: 120,
-    status: 'maintenance',
+    status: "maintenance",
   },
   {
     id: "3",
@@ -35,7 +42,7 @@ export const mockRooms: Room[] = [
       "https://images.pexels.com/photos/380768/pexels-photo-380768.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
     pricePerHour: 55,
-    status: 'available',
+    status: "available",
   },
   {
     id: "4",
@@ -47,7 +54,7 @@ export const mockRooms: Room[] = [
       "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=400",
     isAvailable: true,
     pricePerHour: 70,
-    status: 'occupied',
+    status: "occupied",
   },
 ];
 
@@ -221,3 +228,13 @@ export const mockOccupancyData: OccupancyData = {
     { hour: "18:00", count: 23 },
   ],
 };
+
+export const defaultRoles: Role[] = [
+  { id: "member", name: "Membro", permissions: ["reservar", "checkin"] },
+  {
+    id: "admin",
+    name: "Administrador",
+    permissions: ["gerir_usuarios", "gerir_reservas", "relatorios"],
+  },
+  { id: "visitor", name: "Visitante", permissions: [] },
+];

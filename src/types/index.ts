@@ -1,4 +1,4 @@
-export type RoomStatus = 'available' | 'occupied' | 'maintenance';
+export type RoomStatus = "available" | "occupied" | "maintenance";
 
 export interface Room {
   id: string;
@@ -26,8 +26,7 @@ export interface Reservation {
   attendees: User[];
 }
 
-export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled';
-
+export type ReservationStatus = "confirmed" | "pending" | "cancelled";
 
 export interface User {
   id: string;
@@ -58,8 +57,7 @@ export interface Event {
   image: string;
 }
 
-export type EventType = 'workshop' | 'networking' | 'presentation' | 'social';
-
+export type EventType = "workshop" | "networking" | "presentation" | "social";
 
 export interface OccupancyData {
   totalCapacity: number;
@@ -80,3 +78,15 @@ export interface CheckinEntry {
   status: CheckinStatus;
   attendees?: User[];
 }
+
+export type Role = {
+  id: string;
+  name: string;
+  permissions: string[];
+};
+
+export type CustomField = {
+  id: string;
+  label: string;
+  type: "text" | "number" | "date";
+};

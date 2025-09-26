@@ -1,7 +1,11 @@
 import React from "react";
 import { ImagePlus } from "lucide-react";
 
-const GeneralSettings: React.FC = () => {
+type GeneralSettingsProps = {
+  onSaved?: () => void;
+};
+
+const GeneralSettings: React.FC<GeneralSettingsProps> = ({ onSaved }) => {
   const [form, setForm] = React.useState({
     spaceName: "Space-Hub Coworking",
     address: "",
@@ -29,6 +33,7 @@ const GeneralSettings: React.FC = () => {
     e.preventDefault();
     // Placeholder: integrar com backend/local storage futuramente
     console.log("General settings saved:", form);
+    onSaved?.();
   };
 
   return (

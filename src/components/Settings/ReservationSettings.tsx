@@ -19,7 +19,11 @@ const defaultRooms: RoomDraft[] = [
   { id: "r-2", name: "Sala Beta", capacity: 4, equipment: ["Projetor"] },
 ];
 
-const ReservationSettings: React.FC = () => {
+type ReservationSettingsProps = {
+  onSaved?: () => void;
+};
+
+const ReservationSettings: React.FC<ReservationSettingsProps> = ({ onSaved }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [rooms, setRooms] = React.useState<RoomDraft[]>(defaultRooms);
@@ -72,6 +76,7 @@ const ReservationSettings: React.FC = () => {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Reservation settings saved:", { rooms, policy });
+    onSaved?.();
   };
 
   return (
@@ -130,7 +135,7 @@ const ReservationSettings: React.FC = () => {
               {rooms.map((room) => (
                 <div
                   key={room.id}
-                  className="flex items-center justify-between p-3"
+                  className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition"
                 >
                   <div>
                     <div className="font-medium text-gray-900">{room.name}</div>

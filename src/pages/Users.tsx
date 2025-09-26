@@ -14,14 +14,15 @@ const Users: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [isToggleConfirmModalOpen, setIsToggleConfirmModalOpen] = useState<boolean>(false);
+  const [isToggleConfirmModalOpen, setIsToggleConfirmModalOpen] =
+    useState<boolean>(false);
   const [userToToggle, setUserToToggle] = useState<User | null>(null);
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
 
   // const handleAddUser = (newUser: User) => {
   //   setUsers([...users, { ...newUser, id: String(users.length + 1), isActive: true }]);
@@ -35,10 +36,10 @@ const Users: React.FC = () => {
   // };
 
   const handleDeleteUser = () => {
-    isAddModalOpen;
-    isEditModalOpen;
+    if (isAddModalOpen) setIsAddModalOpen(false);
+    if (isEditModalOpen) setIsEditModalOpen(false);
     if (userToDelete) {
-      setUsers(users.filter(user => user.id !== userToDelete.id));
+      setUsers(users.filter((user) => user.id !== userToDelete.id));
       setIsConfirmModalOpen(false);
       setUserToDelete(null);
     }
@@ -46,9 +47,13 @@ const Users: React.FC = () => {
 
   const handleToggleActive = () => {
     if (userToToggle) {
-      setUsers(users.map(user =>
-        user.id === userToToggle.id ? { ...user, isActive: !userToToggle.isActive } : user
-      ));
+      setUsers(
+        users.map((user) =>
+          user.id === userToToggle.id
+            ? { ...user, isActive: !userToToggle.isActive }
+            : user
+        )
+      );
       setIsToggleConfirmModalOpen(false);
       setUserToToggle(null);
     }
@@ -77,7 +82,10 @@ const Users: React.FC = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="relative w-full md:w-1/3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Buscar por nome ou e-mail..."
@@ -86,7 +94,6 @@ const Users: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
@@ -172,7 +179,7 @@ const Users: React.FC = () => {
                       }`}
                       onClick={() => {
                         setUserToToggle(user);
-setIsToggleConfirmModalOpen(true);
+                        setIsToggleConfirmModalOpen(true);
                       }}
                     >
                       {user.isActive ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -201,11 +208,20 @@ setIsToggleConfirmModalOpen(true);
       {userToToggle && (
         <ConfirmationModal
           isOpen={isToggleConfirmModalOpen}
-          onClose={() => { setIsToggleConfirmModalOpen(false); setUserToToggle(null); }}
+          onClose={() => {
+            setIsToggleConfirmModalOpen(false);
+            setUserToToggle(null);
+          }}
           onConfirm={handleToggleActive}
-          message={`Tem certeza que deseja ${userToToggle.isActive ? 'desativar' : 'ativar'} o usuário ${userToToggle.name}?`}
-          title={`${userToToggle.isActive ? 'Desativar' : 'Ativar'} Usuário`}
-          confirmButtonColor={userToToggle.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}
+          message={`Tem certeza que deseja ${
+            userToToggle.isActive ? "desativar" : "ativar"
+          } o usuário ${userToToggle.name}?`}
+          title={`${userToToggle.isActive ? "Desativar" : "Ativar"} Usuário`}
+          confirmButtonColor={
+            userToToggle.isActive
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-green-600 hover:bg-green-700"
+          }
         />
       )}
 

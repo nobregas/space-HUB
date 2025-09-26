@@ -4,11 +4,22 @@ import GeneralSettings from "@/components/Settings/GeneralSettings.tsx";
 import ReservationSettings from "@/components/Settings/ReservationSettings.tsx";
 import UserSettings from "@/components/Settings/UserSettings.tsx";
 import CommunicationSettings from "@/components/Settings/CommunicationSettings.tsx";
+import Alert from "@/components/common/Alert";
 
 type SettingsTab = "general" | "reservations" | "users" | "communications";
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<SettingsTab>("general");
+  const [alert, setAlert] = React.useState<{ message: string; type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
+  const dismissTimeoutRef = React.useRef<number | null>(null);
+
+  const showSuccess = (msg: string) => {
+    setAlert({ message: msg, type: 'success' });
+    if (dismissTimeoutRef.current) {
+      window.clearTimeout(dismissTimeoutRef.current);
+    }
+    dismissTimeoutRef.current = window.setTimeout(() => setAlert(null), 3500);
+  };
 
   const tabs: Array<{
     id: SettingsTab;
@@ -47,6 +58,16 @@ const Settings: React.FC = () => {
         </button>
       </div>
 
+      {alert && (
+        <div className="mb-4">
+          <Alert
+            message={alert.message}
+            type={alert.type}
+            onClose={() => setAlert(null)}
+          />
+        </div>
+      )}
+
       <div className="mb-4 border-b border-gray-200">
         <nav className="-mb-px flex flex-wrap gap-2 sm:gap-4" aria-label="Tabs">
           {tabs.map((tab) => {
@@ -71,10 +92,18 @@ const Settings: React.FC = () => {
       </div>
 
       <div className="">
-        {activeTab === "general" && <GeneralSettings />}
-        {activeTab === "reservations" && <ReservationSettings />}
-        {activeTab === "users" && <UserSettings />}
-        {activeTab === "communications" && <CommunicationSettings />}
+        {activeTab === "general" && (
+          <GeneralSettings onSaved={() => showSuccess('Configurações gerais salvas com sucesso.')} />
+        )}
+        {activeTab === "reservations" && (
+          <ReservationSettings onSaved={() => showSuccess('Configurações de salas salvas com sucesso.')} />
+        )}
+        {activeTab === "users" && (
+          <UserSettings onSaved={() => showSuccess('Configurações de usuários salvas com sucesso.')} />
+        )}
+        {activeTab === "communications" && (
+          <CommunicationSettings onSaved={() => showSuccess('Configurações de comunicação salvas com sucesso.')} />
+        )}
       </div>
     </div>
   );
