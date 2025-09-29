@@ -18,7 +18,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
+    { id: "dashboard", label: "Dashboard", icon: Home, path: "/" },
     { id: "reservations", label: "Reservas", icon: Calendar, path: "/reservations" },
     { id: "checkin", label: "Check-in", icon: LogIn, path: "/checkin" },
     { id: "users", label: "Usuários", icon: Users, path: "/users" },
@@ -61,6 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
               <li key={item.id}>
                 <NavLink
                   to={item.path}
+                  end
                   className={({ isActive }) =>
                     `w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:scale-101 hover:shadow-md transition-colors duration-200 cursor-pointer ${
                       isActive
