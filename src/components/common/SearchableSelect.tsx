@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { ChevronDown, X, Search } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 
 interface Option {
   value: string;
