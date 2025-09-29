@@ -1,13 +1,14 @@
 import React from 'react';
 import type { Event } from '@/types';
-import { Calendar, Clock, MapPin, Users, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, User, Edit } from 'lucide-react';
 
 interface EventCardProps {
   event: Event;
   onRSVP: (eventId: string) => void;
+  onEdit: (event: Event) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onRSVP }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, onRSVP, onEdit }) => {
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case 'workshop': return 'bg-blue-100 text-blue-700';
@@ -35,7 +36,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRSVP }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200 relative">
       <div className="aspect-[16/9] relative overflow-hidden">
         <img
           src={event.image}
@@ -93,17 +94,25 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRSVP }) => {
           )}
         </div>
         
-        <button
-          onClick={() => onRSVP(event.id)}
-          disabled={event.attendees >= event.maxAttendees}
-          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
-            event.attendees >= event.maxAttendees
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-        >
-          {event.attendees >= event.maxAttendees ? 'Lotado' : 'Confirmar Presença'}
-        </button>
+        <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onRSVP(event.id)}
+              disabled={event.attendees >= event.maxAttendees}
+              className={`w-full py-2 px-4 rounded-lg font-medium transition-colors duration-200 ${
+                event.attendees >= event.maxAttendees
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              {event.attendees >= event.maxAttendees ? 'Lotado' : 'Confirmar Presença'}
+            </button>
+            <button
+                onClick={() => onEdit(event)}
+                className="p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            >
+                <Edit className="w-5 h-5" />
+            </button>
+        </div>
       </div>
     </div>
   );
